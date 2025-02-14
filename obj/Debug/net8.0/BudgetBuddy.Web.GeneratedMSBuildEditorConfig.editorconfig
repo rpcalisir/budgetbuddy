@@ -18,8 +18,16 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = D:\repos\repos\BudgetBuddy\BudgetBuddy.Web
 build_property._RazorSourceGeneratorDebug = 
 
-[D:/repos/repos/BudgetBuddy/BudgetBuddy.Web/Views/Budget/index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQnVkZ2V0XGluZGV4LmNzaHRtbA==
+[D:/repos/repos/BudgetBuddy/BudgetBuddy.Web/Views/BudgetSettings/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQnVkZ2V0U2V0dGluZ3NcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/repos/repos/BudgetBuddy/BudgetBuddy.Web/Views/BudgetSettings/_CategoryRow.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQnVkZ2V0U2V0dGluZ3NcX0NhdGVnb3J5Um93LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/repos/repos/BudgetBuddy/BudgetBuddy.Web/Views/BudgetSettings/_SubCategoryRow.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQnVkZ2V0U2V0dGluZ3NcX1N1YkNhdGVnb3J5Um93LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/repos/repos/BudgetBuddy/BudgetBuddy.Web/Views/Home/Index.cshtml]

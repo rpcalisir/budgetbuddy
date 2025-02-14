@@ -2,8 +2,6 @@
 {
     public class BudgetSettingsViewModel
     {
-        public decimal Salary { get; set; }
-        public int Year { get; set; }
-        public List<MainCategorySettingsViewModel> MainCategories { get; set; }
+        public List<CategoryViewModel> Categories { get; set; }
     }
 }
