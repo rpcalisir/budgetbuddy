@@ -1,0 +1,11 @@
+D:\repos\repos\BudgetBuddy\BudgetBuddy.Application\bin\Debug\net8.0\BudgetBuddy.Application.deps.json
+D:\repos\repos\BudgetBuddy\BudgetBuddy.Application\bin\Debug\net8.0\BudgetBuddy.Application.dll
+D:\repos\repos\BudgetBuddy\BudgetBuddy.Application\bin\Debug\net8.0\BudgetBuddy.Application.pdb
+D:\repos\repos\BudgetBuddy\BudgetBuddy.Application\obj\Debug\net8.0\BudgetBuddy.Application.GeneratedMSBuildEditorConfig.editorconfig
+D:\repos\repos\BudgetBuddy\BudgetBuddy.Application\obj\Debug\net8.0\BudgetBuddy.Application.AssemblyInfoInputs.cache
+D:\repos\repos\BudgetBuddy\BudgetBuddy.Application\obj\Debug\net8.0\BudgetBuddy.Application.AssemblyInfo.cs
+D:\repos\repos\BudgetBuddy\BudgetBuddy.Application\obj\Debug\net8.0\BudgetBuddy.Application.csproj.CoreCompileInputs.cache
+D:\repos\repos\BudgetBuddy\BudgetBuddy.Application\obj\Debug\net8.0\BudgetBuddy.Application.dll
+D:\repos\repos\BudgetBuddy\BudgetBuddy.Application\obj\Debug\net8.0\refint\BudgetBuddy.Application.dll
+D:\repos\repos\BudgetBuddy\BudgetBuddy.Application\obj\Debug\net8.0\BudgetBuddy.Application.pdb
+D:\repos\repos\BudgetBuddy\BudgetBuddy.Application\obj\Debug\net8.0\ref\BudgetBuddy.Application.dll
