@@ -1,3 +1,4 @@
+
 namespace BudgetBuddy.Web
 {
     public class Program
@@ -8,6 +9,12 @@ namespace BudgetBuddy.Web
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            // Register all MediatR handlers from the current assembly.
+            // This allows MediatR to automatically discover and inject handlers for your commands and queries.
+            // In a Clean Architecture solution, you would typically point this to your Application layer assembly
+            // where all your handlers are located.
+            //builder.Services.AddApplicationServices(builder.Configuration);
 
             var app = builder.Build();
 

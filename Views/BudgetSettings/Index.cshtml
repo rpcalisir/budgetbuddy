@@ -1,0 +1,386 @@
+﻿@model BudgetSettingsViewModel
+
+<div class="container mt-4">
+    <h2>Budget Settings</h2>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    <!-- Budget Overview -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Budget Allocation Overview</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Total Allocated: @Model.TotalBudgetPercentage%</h5>
+                </div>
+                <div class="col-md-6">
+                    <h5>Remaining: @Model.RemainingPercentage%</h5>
+                </div>
+            </div>
+
+            @if (Model.MainCategories.Any())
+            {
+                <div class="progress mt-3" style="height: 25px;">
+                    @foreach (var category in Model.MainCategories)
+                    {
+                        string colorClass = category.Type switch
+                        {
+                            MainCategoryType.FixedExpenses => "bg-danger",
+                            MainCategoryType.VariableExpenses => "bg-warning",
+                            MainCategoryType.Savings => "bg-success",
+                            MainCategoryType.Investments => "bg-info",
+                            _ => "bg-secondary"
+                        };
+                        <div class="progress-bar @colorClass"
+                             role="progressbar"
+                             style="width: @(category.Percentage)%"
+                             title="@category.TypeName: @(category.Percentage)%">
+                            @(category.Percentage)%
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Add Main Category Form -->
+    @if (Model.RemainingPercentage > 0)
+    {
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Add Main Category</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="CreateMainCategory" method="post">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Category Type</label>
+                                <select name="Type" class="form-control" id="categoryType"
+                                        onchange="toggleCustomName()" required>
+                                    <option value="">-- Select Category Type --</option>
+                                    @foreach (var type in Enum.GetValues(typeof(MainCategoryType)))
+                                    {
+                                        <option value="@type">@type</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group" id="customNameGroup" style="display: none;">
+                                <label>Custom Category Name</label>
+                                <input type="text" name="CustomName" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Percentage Allocation</label>
+                                <input type="number" name="Percentage" class="form-control"
+                                       min="1" max="@Model.RemainingPercentage" step="0.1" required />
+                                <small class="text-muted">Maximum available: @Model.RemainingPercentage%</small>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">Add Category</button>
+                </form>
+            </div>
+        </div>
+    }
+
+    <!-- Current Categories -->
+    @if (Model.MainCategories.Any())
+    {
+        <div class="card">
+            <div class="card-header">
+                <h4>Current Budget Structure</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    @foreach (var category in Model.MainCategories)
+                    {
+                        <div class="col-md-6 mb-4">
+
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">@category.TypeName</h5>
+                                    <form asp-action="DeleteMainCategory" method="post" style="display: inline;">
+                                        <input type="hidden" name="id" value="@category.Id" />
+                                        <button type="submit" class="btn btn-danger btn-sm"
+                                                onclick="return confirm('Are you sure you want to delete this category and all its sub-categories?')">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <div id="display-percentage-@category.Id">
+                                                <p><strong>Allocation:</strong> @category.Percentage%</p>
+                                                <button class="btn btn-primary btn-sm"
+                                                        onclick="toggleMainCategoryEdit(@category.Id)"
+                                                        id="edit-percentage-btn-@category.Id">
+                                                    Edit
+                                                </button>
+                                            </div>
+                                            <div class="input-group d-none" id="edit-percentage-group-@category.Id">
+                                                <input type="number" id="edit-percentage-@category.Id"
+                                                       class="form-control form-control-sm"
+                                                       value="@category.Percentage"
+                                                       min="0.1" max="100" step="0.1" />
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-success btn-sm"
+                                                            onclick="saveMainCategoryEdit(@category.Id)">
+                                                        Save
+                                                    </button>
+                                                    <button class="btn btn-secondary btn-sm"
+                                                            onclick="cancelMainCategoryEdit(@category.Id)">
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p><strong>Amount:</strong> @category.TotalAmount.ToTurkishFormat() ₺</p>
+
+                                    <p>
+                                        <strong>Remaining Allocation:</strong>
+                                        @{
+                                            var maxAmount = (category.Percentage / 100) * BudgetSettingsViewModel.TOTAL_SALARY;
+                                            var usedAmount = category.SubCategories.Sum(x => x.Amount);
+                                            var remainingAmount = maxAmount - usedAmount;
+                                        }
+                                        @remainingAmount.ToTurkishFormat() ₺
+                                    </p>
+
+                                    <!-- Add Sub Category Form -->
+                                    <div class="mb-4">
+                                        <h6>Add Sub Category</h6>
+                                        <form asp-action="CreateSubCategory" method="post">
+                                            <input type="hidden" name="MainCategoryId" value="@category.Id" />
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <input type="text" name="Name" class="form-control" placeholder="Name" required />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <input type="number" name="Amount" class="form-control"
+                                                               placeholder="Amount" required min="1" />
+                                                        <small class="text-muted">Max: @remainingAmount.ToTurkishFormat() ₺</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <button type="submit" class="btn btn-primary btn-sm">Add</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                    @if (!category.SubCategories.Any())
+                                    {
+                                        <div class="alert alert-info">
+                                            No sub-categories defined yet
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Amount</th>
+                                                    <th>%</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var sub in category.SubCategories)
+                                                {
+                                                    <tr id="row-@sub.Id">
+                                                        <td>
+                                                            <span id="display-name-@sub.Id">@sub.Name</span>
+                                                            <input type="text" id="edit-name-@sub.Id"
+                                                                   value="@sub.Name"
+                                                                   class="form-control d-none" />
+                                                        </td>
+                                                        <td>
+                                                            <span id="display-amount-@sub.Id">@sub.Amount.ToTurkishFormat() ₺</span>
+                                                            <input type="number" id="edit-amount-@sub.Id"
+                                                                   value="@sub.Amount"
+                                                                   class="form-control d-none" />
+                                                        </td>
+                                                        <td>@sub.Percentage%</td>
+                                                        <td>
+                                                            <div class="btn-group">
+                                                                <button type="button" class="btn btn-primary btn-sm"
+                                                                        onclick="toggleEdit(@sub.Id)"
+                                                                        id="edit-btn-@sub.Id">
+                                                                    Edit
+                                                                </button>
+                                                                <button type="button" class="btn btn-success btn-sm d-none"
+                                                                        onclick="saveEdit(@category.Id, @sub.Id)"
+                                                                        id="save-btn-@sub.Id">
+                                                                    Save
+                                                                </button>
+                                                                <form asp-action="DeleteSubCategory" method="post" style="display: inline;">
+                                                                    <input type="hidden" name="mainCategoryId" value="@category.Id" />
+                                                                    <input type="hidden" name="subCategoryId" value="@sub.Id" />
+                                                                    <button type="submit" class="btn btn-danger btn-sm"
+                                                                            onclick="return confirm('Are you sure you want to delete this sub-category?')">
+                                                                        Delete
+                                                                    </button>
+                                                                </form>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function toggleEdit(id) {
+            // Toggle display/edit modes
+            document.getElementById(`display-name-${id}`).classList.toggle('d-none');
+            document.getElementById(`display-amount-${id}`).classList.toggle('d-none');
+            document.getElementById(`edit-name-${id}`).classList.toggle('d-none');
+            document.getElementById(`edit-amount-${id}`).classList.toggle('d-none');
+            document.getElementById(`edit-btn-${id}`).classList.toggle('d-none');
+            document.getElementById(`save-btn-${id}`).classList.toggle('d-none');
+        }
+
+        function saveEdit(mainCategoryId, subCategoryId) {
+            const name = document.getElementById(`edit-name-${subCategoryId}`).value;
+            const amount = document.getElementById(`edit-amount-${subCategoryId}`).value;
+
+            fetch('@Url.Action("EditSubCategory")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: `mainCategoryId=${mainCategoryId}&subCategoryId=${subCategoryId}&name=${name}&amount=${amount}`
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Success - store message in TempData and reload
+                        fetch('@Url.Action("StoreMessage")', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                            },
+                            body: `type=Success&message=${encodeURIComponent(data.message)}`
+                        }).then(() => window.location.reload());
+                    } else {
+                        // Error - store error in TempData and reload
+                        fetch('@Url.Action("StoreMessage")', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                            },
+                            body: `type=Error&message=${encodeURIComponent(data.error)}`
+                        }).then(() => window.location.reload());
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    window.location.reload();
+                });
+        }
+        function toggleCustomName() {
+            const categoryType = document.getElementById('categoryType');
+            const customNameGroup = document.getElementById('customNameGroup');
+            const customNameInput = customNameGroup.querySelector('input');
+
+            if (categoryType.value === 'Custom') {
+                customNameGroup.style.display = 'block';
+                customNameInput.required = true;
+            } else {
+                customNameGroup.style.display = 'none';
+                customNameInput.required = false;
+            }
+        }
+
+
+        function toggleMainCategoryEdit(id) {
+            document.getElementById(`display-percentage-${id}`).classList.toggle('d-none');
+            document.getElementById(`edit-percentage-group-${id}`).classList.toggle('d-none');
+            document.getElementById(`edit-percentage-btn-${id}`).classList.toggle('d-none');
+        }
+
+        function cancelMainCategoryEdit(id) {
+            toggleMainCategoryEdit(id);
+        }
+
+        function saveMainCategoryEdit(id) {
+            const percentage = document.getElementById(`edit-percentage-${id}`).value;
+
+            if (!percentage || percentage <= 0) {
+                fetch('@Url.Action("StoreMessage")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: `type=Error&message=${encodeURIComponent("Percentage must be greater than zero")}`
+                }).then(() => window.location.reload());
+                return;
+            }
+
+            fetch('@Url.Action("EditMainCategory")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: `id=${id}&percentage=${percentage}`
+            })
+                .then(response => response.json())
+                .then(data => {
+                    fetch('@Url.Action("StoreMessage")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        },
+                        body: `type=${data.success ? 'Success' : 'Error'}&message=${encodeURIComponent(data.success ? data.message : data.error)}`
+                    }).then(() => window.location.reload());
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    window.location.reload();
+                });
+        }
+        // Call on page load to set initial state
+        document.addEventListener('DOMContentLoaded', toggleCustomName);
+    </script>
+}

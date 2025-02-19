@@ -1,0 +1,80 @@
+﻿@model BudgetOverviewViewModel
+
+<div class="container mt-4">
+    <h2>Budget Overview</h2>
+
+    @if (Model == null)
+    {
+        <div class="alert alert-danger">
+            Model is null
+        </div>
+    }
+    else
+    {
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Budget Summary</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Salary:</strong> @Model.Salary.ToTurkishFormat() ₺</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Year:</strong> @Model.Year</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            @foreach (var mainCategory in Model.MainCategories)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5>@mainCategory.TypeName</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <p><strong>Total Amount:</strong> @mainCategory.TotalAmount.ToTurkishFormat() ₺</p>
+                                <p><strong>Budget Percentage:</strong> @mainCategory.Percentage%</p>
+                            </div>
+
+                            @if (mainCategory.SubCategories.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Category</th>
+                                                <th>Amount</th>
+                                                <th>%</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var subCategory in mainCategory.SubCategories)
+                                            {
+                                                <tr>
+                                                    <td>@subCategory.Name</td>
+                                                    <td>@subCategory.Amount.ToTurkishFormat() ₺</td>
+                                                    <td>@subCategory.Percentage%</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="text-center mt-4">
+            <a asp-controller="Budget" asp-action="Index" class="btn btn-primary">
+                Manage Budget Settings
+            </a>
+        </div>
+    }
+</div>
