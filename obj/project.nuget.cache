@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "dX13Ba0m+RVcQpWw7OytOq7r3JlNsQGW/gEkxtTupyG7h8vQaRjzrrvuIAjwY/sOWycUn3XpcPB7gsj4mWB0aw==",
+  "dgSpecHash": "G3ERbCZQQfcZE/B3XKtcW6xkexW44gaXO+cs+h5ZH5vw0/d/X9/gd6FT5UUPVRnccSEXUTY9J7NySRoGdZNLyQ==",
   "success": true,
-  "projectFilePath": "D:\\repos\\repos\\BudgetBuddy\\BudgetBuddy.Web\\BudgetBuddy.Web.csproj",
+  "projectFilePath": "D:\\repos\\repos\\BudgetBuddy\\src\\BudgetBuddy.Web\\BudgetBuddy.Web.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }
